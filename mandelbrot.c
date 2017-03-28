@@ -4,11 +4,22 @@
 #include <stdlib.h>
 #include <gmp.h>
 
-void mandelbrot_region(mpf_t start_x, mpf_t start_y, int increments_x, int increments_y, mpf_t increment_size, long max_iterations, char fname[]) {
+void mandelbrot_region(mpf_t start_x, mpf_t start_y, int increments_x, int increments_y, mpf_t increment_size, long max_iterations, int precision, char fname[]) {
+
+
 
  	int n_pixels = increments_x * increments_y;
  	long* iteration_count;
  	iteration_count = malloc(sizeof(long) * n_pixels);
+
+
+	mpf_t *escape_values;
+	escape_values = malloc(n_pixels * sizeof(mpf_t) * 2);
+	int q;
+
+	for (q=0; q<n_pixels*2; q++) {
+    	mpf_init(escape_values[q]);
+	}
 
  	long int k = 0;
  	mpf_t c_real;
@@ -74,7 +85,8 @@ void mandelbrot_region(mpf_t start_x, mpf_t start_y, int increments_x, int incre
  			if (escaped == 0) {
  				iteration_count[k] = max_iterations + 1;
  			}
-
+ 			mpf_set(escape_values[k], z_real);
+ 			mpf_set(escape_values[k+1], z_imag);
  			// moves to the pixel to the right
  			mpf_add(c_real, c_real, increment_size);
  			k++;
@@ -88,16 +100,30 @@ void mandelbrot_region(mpf_t start_x, mpf_t start_y, int increments_x, int incre
 
  	};
 
+
  	FILE *f = fopen(fname, "wb");
- 	fprintf(f, "%ld ", max_iterations);
- 	fprintf(f, "%d ", increments_x);
- 	fprintf(f, "%d ", increments_y);
 
- 	for (int n=0; n<n_pixels; n++){
- 		fprintf(f, "%ld ", iteration_count[n]);
- 	}
 
-	fclose(f);
+ 	if (f != NULL) {
+ 		fprintf(f, "%ld ", max_iterations);
+
+	 	fprintf(f, "%d ", increments_x);
+	 	fprintf(f, "%d ", increments_y);
+
+
+
+	 	for (int n=0; n<n_pixels; n++){
+	 		fprintf(f, "%ld ", iteration_count[n]);
+	 		mpf_out_str(f, 10, precision, escape_values[n]);
+	 		fputs(" ", f);
+	 		mpf_out_str(f, 10, precision, escape_values[n+1]);
+	 		fputs(" ", f);
+	 	}
+
+		fclose(f);
+	} else {
+		printf("Error opening file for writing.");
+	}
 
 	mpf_clear(c_real);
  	mpf_clear(c_imag);
@@ -107,6 +133,12 @@ void mandelbrot_region(mpf_t start_x, mpf_t start_y, int increments_x, int incre
  	mpf_clear(new_z_imag);
  	mpf_clear(z_imag_sqrd);
  	free(iteration_count);
+
+ 	for (q=0; q<n_pixels*2; q++) {
+    	mpf_clear(escape_values[q]);
+	}
+
+	free(escape_values);
  }
 
 
@@ -181,11 +213,14 @@ int main(int argc, char **argv){
 	mpf_out_str(stdout, 10, precision, x_start);
 	printf("\nStart y: ");
 	mpf_out_str(stdout, 10, precision, y_start);
+
 	printf("\nBlock size: ");
+
 	mpf_out_str(stdout, 10, precision, increment_size);
+
 	printf("\n");
 
-	mandelbrot_region(x_start, y_start, width, height, increment_size, max_iterations, argv[8]);
+	mandelbrot_region(x_start, y_start, width, height, increment_size, max_iterations, precision, argv[8]);
 
 	mpf_clear(scale);
 	mpf_clear(x_start);

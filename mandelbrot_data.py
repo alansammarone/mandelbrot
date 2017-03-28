@@ -20,12 +20,12 @@ class MandelbrotData:
 		if out_folder is None:
 			out_folder = self.build_out_folder()
 
-		self.out_folder = out_folder
+		self.out_folder = os.path.join(out_folder, 'data')
 
-		if os.path.isdir(out_folder):
+		if os.path.isdir(self.out_folder):
 			warnings.warn("Folder %s already exists. Files will be overwritten.")
 		else:
-			os.makedirs(out_folder)
+			os.makedirs(self.out_folder)
 
 	def build_out_folder(self):
 		return str(abs(hash((self.width, self.height, self.x_center, self.y_center))))[:5]
@@ -52,8 +52,6 @@ class MandelbrotData:
 		command += [str(precision), os.path.join(self.out_folder, file_name)]
 
 		return command
-		#subprocess.check_output(command)
-
 
 
 	def generate_data(self, start_zoom_level, end_zoom_level, zoom_factor, n_workers=4):
