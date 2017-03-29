@@ -85,8 +85,8 @@ void mandelbrot_region(mpf_t start_x, mpf_t start_y, int increments_x, int incre
  			if (escaped == 0) {
  				iteration_count[k] = max_iterations + 1;
  			}
- 			mpf_set(escape_values[k], z_real);
- 			mpf_set(escape_values[k+1], z_imag);
+ 			mpf_set(escape_values[2*k], z_real);
+ 			mpf_set(escape_values[2*k+1], z_imag);
  			// moves to the pixel to the right
  			mpf_add(c_real, c_real, increment_size);
  			k++;
@@ -105,19 +105,19 @@ void mandelbrot_region(mpf_t start_x, mpf_t start_y, int increments_x, int incre
 
 
  	if (f != NULL) {
- 		fprintf(f, "%ld ", max_iterations);
 
-	 	fprintf(f, "%d ", increments_x);
+		fprintf(f, "%d ", increments_x);
 	 	fprintf(f, "%d ", increments_y);
-
-
+ 		fprintf(f, "%ld ", max_iterations);
+ 		fprintf(f, "%d", precision);
 
 	 	for (int n=0; n<n_pixels; n++){
+	 		fputs(" ", f);
 	 		fprintf(f, "%ld ", iteration_count[n]);
-	 		mpf_out_str(f, 10, precision, escape_values[n]);
+	 		mpf_out_str(f, 10, precision, escape_values[2*n]);
 	 		fputs(" ", f);
-	 		mpf_out_str(f, 10, precision, escape_values[n+1]);
-	 		fputs(" ", f);
+	 		mpf_out_str(f, 10, precision, escape_values[2*n+1]);
+
 	 	}
 
 		fclose(f);

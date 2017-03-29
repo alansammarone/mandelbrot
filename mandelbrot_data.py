@@ -92,8 +92,8 @@ class MandelbrotData:
 x_center = "0.013438870532012129028364919004019686867528573314565492885548699"
 y_center = "0.655614218769465062251320027664617466691295975864786403994151735"
 A = MandelbrotData(1280*2, 720*2, x_center, y_center, "1")
-A.generate_data(0, 10, 2, n_workers=3)
-
+#A.generate_data(0, 3, 2, n_workers=3)
+A.generate_data(0, 9, 3, n_workers=3)
 
 
 
